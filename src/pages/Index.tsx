@@ -140,6 +140,23 @@ const Index = () => {
             <p className="text-xl md:text-2xl text-muted-foreground">
               Выживай. Строй. Побеждай.
             </p>
+            <div className="bg-card/80 backdrop-blur border-2 border-primary/30 rounded-lg p-4 max-w-md mx-auto glow-box">
+              <div className="text-sm text-muted-foreground mb-2">IP для подключения:</div>
+              <div className="flex items-center justify-between gap-3">
+                <code className="text-lg font-bold text-primary">ToughLife.aternos.me:21635</code>
+                <Button 
+                  size="sm" 
+                  variant="secondary"
+                  onClick={() => {
+                    navigator.clipboard.writeText('ToughLife.aternos.me:21635');
+                  }}
+                >
+                  <Icon name="Copy" size={16} className="mr-1" />
+                  Копировать
+                </Button>
+              </div>
+              <div className="text-xs text-muted-foreground mt-2 text-center">Работает на любой версии Minecraft</div>
+            </div>
           </div>
           <div className="flex gap-4 justify-center flex-wrap">
             <Button size="lg" className="glow-box text-lg px-8">
@@ -163,8 +180,8 @@ const Index = () => {
             </div>
             <div className="w-px bg-border" />
             <div>
-              <div className="text-3xl font-bold text-accent">v1.20</div>
-              <div className="text-sm text-muted-foreground">Последняя версия</div>
+              <div className="text-3xl font-bold text-accent">Любая</div>
+              <div className="text-sm text-muted-foreground">Версия Minecraft</div>
             </div>
           </div>
         </div>
@@ -273,13 +290,25 @@ const Index = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">IP адрес:</span>
-                  <span className="font-bold">toughlife.server.net</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-primary">ToughLife.aternos.me:21635</span>
+                    <Button 
+                      size="sm" 
+                      variant="ghost" 
+                      className="h-6 w-6 p-0"
+                      onClick={() => {
+                        navigator.clipboard.writeText('ToughLife.aternos.me:21635');
+                      }}
+                    >
+                      <Icon name="Copy" size={14} />
+                    </Button>
+                  </div>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Версия:</span>
-                  <span className="font-bold">1.20.1</span>
+                  <span className="font-bold text-secondary">Любая версия ✨</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Онлайн:</span>
