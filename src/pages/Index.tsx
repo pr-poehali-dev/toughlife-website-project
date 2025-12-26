@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import Icon from '@/components/ui/icon';
 
 interface ChatMessage {
@@ -15,6 +16,7 @@ interface ChatMessage {
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('home');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     { id: 1, user: 'Admin', message: 'Добро пожаловать на ToughLife!', time: '10:30' },
     { id: 2, user: 'Player123', message: 'Привет всем! Когда вайп?', time: '10:32' },
@@ -26,6 +28,7 @@ const Index = () => {
 
   const scrollToSection = (sectionId: string) => {
     setActiveSection(sectionId);
+    setMobileMenuOpen(false);
     const element = document.getElementById(sectionId);
     element?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -85,10 +88,46 @@ const Index = () => {
               </button>
             ))}
           </div>
-          <Badge variant={serverStatus.online ? 'default' : 'destructive'} className="animate-pulse-glow">
-            <Icon name="Circle" size={8} className="mr-1 fill-current" />
-            {serverStatus.online ? 'ONLINE' : 'OFFLINE'}
-          </Badge>
+          <div className="flex items-center gap-3">
+            <Badge variant={serverStatus.online ? 'default' : 'destructive'} className="animate-pulse-glow hidden sm:flex">
+              <Icon name="Circle" size={8} className="mr-1 fill-current" />
+              {serverStatus.online ? 'ONLINE' : 'OFFLINE'}
+            </Badge>
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild className="md:hidden">
+                <Button variant="ghost" size="icon" className="glow-box">
+                  <Icon name="Menu" size={24} />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[280px] bg-background/95 backdrop-blur-xl border-primary/20">
+                <div className="flex flex-col gap-6 mt-8">
+                  <div className="text-center mb-4">
+                    <h2 className="text-2xl font-black glow text-primary mb-2">ToughLife</h2>
+                    <Badge variant={serverStatus.online ? 'default' : 'destructive'} className="animate-pulse-glow">
+                      <Icon name="Circle" size={8} className="mr-1 fill-current" />
+                      {serverStatus.online ? 'ONLINE' : 'OFFLINE'}
+                    </Badge>
+                  </div>
+                  {['home', 'about', 'rules', 'donate', 'map', 'status'].map((section) => (
+                    <button
+                      key={section}
+                      onClick={() => scrollToSection(section)}
+                      className={`text-lg font-medium transition-all hover:text-primary hover:glow text-left py-2 px-4 rounded-lg ${
+                        activeSection === section ? 'text-primary glow bg-primary/10' : 'text-foreground/70'
+                      }`}
+                    >
+                      {section === 'home' && '🏠 Главная'}
+                      {section === 'about' && '📖 О сервере'}
+                      {section === 'rules' && '⚖️ Правила'}
+                      {section === 'donate' && '💎 Донат'}
+                      {section === 'map' && '🗺️ Карта'}
+                      {section === 'status' && '📊 Статус'}
+                    </button>
+                  ))}
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </nav>
 
