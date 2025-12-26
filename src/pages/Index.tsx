@@ -24,11 +24,7 @@ const Index = () => {
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const { toast } = useToast();
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-    { id: 1, user: 'Admin', message: 'Добро пожаловать на ToughLife!', time: '10:30' },
-    { id: 2, user: 'Player123', message: 'Привет всем! Когда вайп?', time: '10:32' },
-    { id: 3, user: 'ProGamer', message: 'Сервер огонь! 🔥', time: '10:35' },
-  ]);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [serverStatus, setServerStatus] = useState({ online: true, players: 47, maxPlayers: 100 });
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -40,7 +36,7 @@ const Index = () => {
     element?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     if (!user) {
       toast({
         title: '⚠️ Требуется вход',
@@ -51,20 +47,68 @@ const Index = () => {
       return;
     }
     if (newMessage.trim()) {
-      const message: ChatMessage = {
-        id: chatMessages.length + 1,
-        user: user.minecraft_nick || user.username,
-        message: newMessage,
-        time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
-      };
-      setChatMessages([...chatMessages, message]);
-      setNewMessage('');
+      try {
+        const response = await fetch('https://functions.poehali.dev/7556f644-973f-4c22-94af-f53a550098d2', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Auth-Token': authService.getToken() || ''
+          },
+          body: JSON.stringify({ message: newMessage })
+        });
+        
+        if (response.ok) {
+          const newMsg = await response.json();
+          setChatMessages([...chatMessages, {
+            id: newMsg.id,
+            user: newMsg.minecraft_nick || newMsg.username,
+            message: newMsg.message,
+            time: new Date(newMsg.timestamp).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
+          }]);
+          setNewMessage('');
+        } else {
+          toast({
+            title: 'Ошибка',
+            description: 'Не удалось отправить сообщение',
+            variant: 'destructive'
+          });
+        }
+      } catch (error) {
+        toast({
+          title: 'Ошибка',
+          description: 'Проблема с подключением',
+          variant: 'destructive'
+        });
+      }
     }
   };
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages]);
+
+  const loadMessages = async () => {
+    try {
+      const response = await fetch('https://functions.poehali.dev/7556f644-973f-4c22-94af-f53a550098d2?limit=50');
+      if (response.ok) {
+        const data = await response.json();
+        setChatMessages(data.messages.map((msg: any) => ({
+          id: msg.id,
+          user: msg.minecraft_nick || msg.username,
+          message: msg.message,
+          time: new Date(msg.timestamp).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
+        })));
+      }
+    } catch (error) {
+      console.error('Failed to load messages:', error);
+    }
+  };
+
+  useEffect(() => {
+    loadMessages();
+    const interval = setInterval(loadMessages, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const token = authService.getToken();
