@@ -115,7 +115,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <h1 className="text-3xl font-black glow text-primary">ToughLife</h1>
           <div className="hidden md:flex gap-6">
-            {['home', 'about', 'rules', 'donate', 'map', 'status'].map((section) => (
+            {['home', 'about', 'rules', 'map', 'status'].map((section) => (
               <button
                 key={section}
                 onClick={() => scrollToSection(section)}
@@ -181,7 +181,7 @@ const Index = () => {
                       {serverStatus.online ? 'ONLINE' : 'OFFLINE'}
                     </Badge>
                   </div>
-                  {['home', 'about', 'rules', 'donate', 'map', 'status'].map((section) => (
+                  {['home', 'about', 'rules', 'map', 'status'].map((section) => (
                     <button
                       key={section}
                       onClick={() => scrollToSection(section)}
@@ -303,34 +303,6 @@ const Index = () => {
               </div>
             </CardContent>
           </Card>
-        </div>
-      </section>
-
-      <section id="donate" className="min-h-screen flex items-center py-20 px-4">
-        <div className="container mx-auto">
-          <h2 className="text-5xl font-black mb-12 text-center glow">Донат пакеты</h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            {donatePackages.map((pkg, i) => (
-              <Card key={i} className={`bg-card/50 backdrop-blur border-2 transition-all hover:scale-105 animate-fade-in ${i === 1 ? 'border-secondary glow-box' : 'border-primary/20 hover:border-primary/50'}`} style={{ animationDelay: `${i * 0.1}s` }}>
-                <CardHeader>
-                  <CardTitle className="text-3xl font-black text-center">{pkg.name}</CardTitle>
-                  <div className="text-5xl font-black text-center text-primary glow">{pkg.price}</div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {pkg.features.map((feature, j) => (
-                    <div key={j} className="flex items-center gap-2">
-                      <Icon name="Check" size={20} className="text-primary" />
-                      <span>{feature}</span>
-                    </div>
-                  ))}
-                  <Button className="w-full mt-4 glow-box">
-                    <Icon name="ShoppingCart" size={16} className="mr-2" />
-                    Купить
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
         </div>
       </section>
 
