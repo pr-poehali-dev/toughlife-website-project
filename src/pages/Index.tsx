@@ -1,12 +1,321 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState, useEffect, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import Icon from '@/components/ui/icon';
+
+interface ChatMessage {
+  id: number;
+  user: string;
+  message: string;
+  time: string;
+}
 
 const Index = () => {
+  const [activeSection, setActiveSection] = useState('home');
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
+    { id: 1, user: 'Admin', message: 'Добро пожаловать на ToughLife!', time: '10:30' },
+    { id: 2, user: 'Player123', message: 'Привет всем! Когда вайп?', time: '10:32' },
+    { id: 3, user: 'ProGamer', message: 'Сервер огонь! 🔥', time: '10:35' },
+  ]);
+  const [newMessage, setNewMessage] = useState('');
+  const [serverStatus, setServerStatus] = useState({ online: true, players: 47, maxPlayers: 100 });
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToSection = (sectionId: string) => {
+    setActiveSection(sectionId);
+    const element = document.getElementById(sectionId);
+    element?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const sendMessage = () => {
+    if (newMessage.trim()) {
+      const message: ChatMessage = {
+        id: chatMessages.length + 1,
+        user: 'Гость',
+        message: newMessage,
+        time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
+      };
+      setChatMessages([...chatMessages, message]);
+      setNewMessage('');
+    }
+  };
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages]);
+
+  const donatePackages = [
+    { name: 'Стартовый', price: '99₽', features: ['Приват территории', 'Набор инструментов', 'x2 к опыту'] },
+    { name: 'Продвинутый', price: '299₽', features: ['Всё из Стартового', 'Уникальный скин', 'x3 к опыту', 'Доступ к /home'] },
+    { name: 'Элитный', price: '599₽', features: ['Всё из Продвинутого', 'Креативный режим', 'x5 к опыту', 'Эксклюзивные команды'] },
+  ];
+
+  const rules = [
+    'Запрещен читерский софт и использование багов',
+    'Уважайте других игроков',
+    'Запрещен гриферство без причины',
+    'Не спамьте в чате',
+    'Слушайте администрацию сервера',
+    'Запрещена реклама других серверов',
+  ];
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4 color-black text-black">Добро пожаловать!</h1>
-        <p className="text-xl text-gray-600">тут будет отображаться ваш проект</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-purple-950/30">
+      <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-lg border-b border-primary/20">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <h1 className="text-3xl font-black glow text-primary">ToughLife</h1>
+          <div className="hidden md:flex gap-6">
+            {['home', 'about', 'rules', 'donate', 'map', 'status'].map((section) => (
+              <button
+                key={section}
+                onClick={() => scrollToSection(section)}
+                className={`text-sm font-medium transition-all hover:text-primary hover:glow ${
+                  activeSection === section ? 'text-primary glow' : 'text-foreground/70'
+                }`}
+              >
+                {section === 'home' && 'Главная'}
+                {section === 'about' && 'О сервере'}
+                {section === 'rules' && 'Правила'}
+                {section === 'donate' && 'Донат'}
+                {section === 'map' && 'Карта'}
+                {section === 'status' && 'Статус'}
+              </button>
+            ))}
+          </div>
+          <Badge variant={serverStatus.online ? 'default' : 'destructive'} className="animate-pulse-glow">
+            <Icon name="Circle" size={8} className="mr-1 fill-current" />
+            {serverStatus.online ? 'ONLINE' : 'OFFLINE'}
+          </Badge>
+        </div>
+      </nav>
+
+      <section id="home" className="min-h-screen flex items-center justify-center pt-20 px-4">
+        <div className="text-center space-y-8 animate-fade-in">
+          <div className="space-y-4">
+            <h2 className="text-7xl md:text-9xl font-black glow text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-accent animate-float">
+              ToughLife
+            </h2>
+            <p className="text-xl md:text-2xl text-muted-foreground">
+              Выживай. Строй. Побеждай.
+            </p>
+          </div>
+          <div className="flex gap-4 justify-center flex-wrap">
+            <Button size="lg" className="glow-box text-lg px-8">
+              <Icon name="Gamepad2" size={20} className="mr-2" />
+              Начать играть
+            </Button>
+            <Button size="lg" variant="outline" className="text-lg px-8">
+              <Icon name="Users" size={20} className="mr-2" />
+              Сообщество
+            </Button>
+          </div>
+          <div className="flex gap-8 justify-center text-center">
+            <div>
+              <div className="text-3xl font-bold text-primary">{serverStatus.players}</div>
+              <div className="text-sm text-muted-foreground">Игроков онлайн</div>
+            </div>
+            <div className="w-px bg-border" />
+            <div>
+              <div className="text-3xl font-bold text-secondary">24/7</div>
+              <div className="text-sm text-muted-foreground">Без лагов</div>
+            </div>
+            <div className="w-px bg-border" />
+            <div>
+              <div className="text-3xl font-bold text-accent">v1.20</div>
+              <div className="text-sm text-muted-foreground">Последняя версия</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="about" className="min-h-screen flex items-center py-20 px-4">
+        <div className="container mx-auto">
+          <h2 className="text-5xl font-black mb-12 text-center glow">О сервере</h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              { icon: 'Sword', title: 'PvP', desc: 'Эпичные сражения и арены' },
+              { icon: 'Home', title: 'Выживание', desc: 'Постройте свою империю' },
+              { icon: 'Zap', title: 'Плагины', desc: 'Уникальные механики игры' },
+              { icon: 'Trophy', title: 'События', desc: 'Регулярные турниры с призами' },
+              { icon: 'Shield', title: 'Защита', desc: 'Приват территорий' },
+              { icon: 'Sparkles', title: 'Экономика', desc: 'Торговля и магазины' },
+            ].map((feature, i) => (
+              <Card key={i} className="bg-card/50 backdrop-blur border-primary/20 hover:border-primary/50 transition-all hover:scale-105 animate-fade-in" style={{ animationDelay: `${i * 0.1}s` }}>
+                <CardContent className="p-6 text-center space-y-4">
+                  <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center glow-box">
+                    <Icon name={feature.icon as any} size={32} />
+                  </div>
+                  <h3 className="text-xl font-bold">{feature.title}</h3>
+                  <p className="text-muted-foreground">{feature.desc}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="rules" className="min-h-screen flex items-center py-20 px-4 bg-gradient-to-b from-transparent to-card/30">
+        <div className="container mx-auto max-w-4xl">
+          <h2 className="text-5xl font-black mb-12 text-center glow">Правила сервера</h2>
+          <Card className="bg-card/50 backdrop-blur border-primary/20">
+            <CardContent className="p-8">
+              <div className="space-y-6">
+                {rules.map((rule, i) => (
+                  <div key={i} className="flex items-start gap-4 animate-fade-in" style={{ animationDelay: `${i * 0.1}s` }}>
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center flex-shrink-0 glow-box">
+                      <span className="text-sm font-bold">{i + 1}</span>
+                    </div>
+                    <p className="text-lg pt-1">{rule}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      <section id="donate" className="min-h-screen flex items-center py-20 px-4">
+        <div className="container mx-auto">
+          <h2 className="text-5xl font-black mb-12 text-center glow">Донат пакеты</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            {donatePackages.map((pkg, i) => (
+              <Card key={i} className={`bg-card/50 backdrop-blur border-2 transition-all hover:scale-105 animate-fade-in ${i === 1 ? 'border-secondary glow-box' : 'border-primary/20 hover:border-primary/50'}`} style={{ animationDelay: `${i * 0.1}s` }}>
+                <CardHeader>
+                  <CardTitle className="text-3xl font-black text-center">{pkg.name}</CardTitle>
+                  <div className="text-5xl font-black text-center text-primary glow">{pkg.price}</div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {pkg.features.map((feature, j) => (
+                    <div key={j} className="flex items-center gap-2">
+                      <Icon name="Check" size={20} className="text-primary" />
+                      <span>{feature}</span>
+                    </div>
+                  ))}
+                  <Button className="w-full mt-4 glow-box">
+                    <Icon name="ShoppingCart" size={16} className="mr-2" />
+                    Купить
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="map" className="min-h-screen flex items-center py-20 px-4 bg-gradient-to-b from-transparent to-card/30">
+        <div className="container mx-auto max-w-6xl">
+          <h2 className="text-5xl font-black mb-12 text-center glow">Карта мира</h2>
+          <Card className="bg-card/50 backdrop-blur border-primary/20">
+            <CardContent className="p-8">
+              <div className="aspect-video bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg flex items-center justify-center">
+                <div className="text-center space-y-4">
+                  <Icon name="Map" size={64} className="mx-auto text-primary glow" />
+                  <p className="text-xl text-muted-foreground">Интерактивная карта загружается...</p>
+                  <p className="text-sm text-muted-foreground">Здесь будет отображаться карта сервера в реальном времени</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      <section id="status" className="min-h-screen flex items-center py-20 px-4">
+        <div className="container mx-auto max-w-6xl">
+          <h2 className="text-5xl font-black mb-12 text-center glow">Статус сервера</h2>
+          <div className="grid md:grid-cols-2 gap-8">
+            <Card className="bg-card/50 backdrop-blur border-primary/20">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Icon name="Server" size={24} className="text-primary" />
+                  Информация
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">IP адрес:</span>
+                  <span className="font-bold">toughlife.server.net</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Версия:</span>
+                  <span className="font-bold">1.20.1</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Онлайн:</span>
+                  <span className="font-bold text-primary">{serverStatus.players} / {serverStatus.maxPlayers}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Режим:</span>
+                  <span className="font-bold">Survival + PvP</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Статус:</span>
+                  <Badge variant={serverStatus.online ? 'default' : 'destructive'}>
+                    {serverStatus.online ? 'РАБОТАЕТ' : 'ОФФЛАЙН'}
+                  </Badge>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-card/50 backdrop-blur border-primary/20">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Icon name="MessageSquare" size={24} className="text-secondary" />
+                  Чат игроков
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[300px] mb-4 pr-4">
+                  <div className="space-y-3">
+                    {chatMessages.map((msg) => (
+                      <div key={msg.id} className="bg-background/50 rounded-lg p-3 animate-slide-in">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-bold text-sm text-primary">{msg.user}</span>
+                          <span className="text-xs text-muted-foreground">{msg.time}</span>
+                        </div>
+                        <p className="text-sm">{msg.message}</p>
+                      </div>
+                    ))}
+                    <div ref={chatEndRef} />
+                  </div>
+                </ScrollArea>
+                <div className="flex gap-2">
+                  <Input
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                    placeholder="Напишите сообщение..."
+                    className="bg-background/50"
+                  />
+                  <Button onClick={sendMessage} className="glow-box">
+                    <Icon name="Send" size={16} />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      <footer className="border-t border-primary/20 bg-card/30 backdrop-blur py-8">
+        <div className="container mx-auto px-4 text-center space-y-4">
+          <h3 className="text-2xl font-black glow text-primary">ToughLife</h3>
+          <p className="text-muted-foreground">© 2024 ToughLife Server. Все права защищены.</p>
+          <div className="flex gap-4 justify-center">
+            <Button variant="ghost" size="icon">
+              <Icon name="MessageCircle" size={20} />
+            </Button>
+            <Button variant="ghost" size="icon">
+              <Icon name="Youtube" size={20} />
+            </Button>
+            <Button variant="ghost" size="icon">
+              <Icon name="Mail" size={20} />
+            </Button>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
