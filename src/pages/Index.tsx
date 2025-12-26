@@ -270,7 +270,6 @@ const Index = () => {
               { icon: 'Zap', title: 'Плагины', desc: 'Уникальные механики игры' },
               { icon: 'Trophy', title: 'События', desc: 'Регулярные турниры с призами' },
               { icon: 'Shield', title: 'Защита', desc: 'Приват территорий' },
-              { icon: 'Sparkles', title: 'Экономика', desc: 'Торговля и магазины' },
             ].map((feature, i) => (
               <Card key={i} className="bg-card/50 backdrop-blur border-primary/20 hover:border-primary/50 transition-all hover:scale-105 animate-fade-in" style={{ animationDelay: `${i * 0.1}s` }}>
                 <CardContent className="p-6 text-center space-y-4">
