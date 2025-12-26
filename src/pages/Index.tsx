@@ -5,7 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import Icon from '@/components/ui/icon';
+import { AuthDialog } from '@/components/AuthDialog';
+import { authService, User } from '@/lib/auth';
+import { useToast } from '@/hooks/use-toast';
 
 interface ChatMessage {
   id: number;
@@ -17,6 +21,9 @@ interface ChatMessage {
 const Index = () => {
   const [activeSection, setActiveSection] = useState('home');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const { toast } = useToast();
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     { id: 1, user: 'Admin', message: 'Добро пожаловать на ToughLife!', time: '10:30' },
     { id: 2, user: 'Player123', message: 'Привет всем! Когда вайп?', time: '10:32' },
@@ -34,10 +41,19 @@ const Index = () => {
   };
 
   const sendMessage = () => {
+    if (!user) {
+      toast({
+        title: '⚠️ Требуется вход',
+        description: 'Войдите или зарегистрируйтесь для отправки сообщений',
+        variant: 'destructive',
+      });
+      setAuthDialogOpen(true);
+      return;
+    }
     if (newMessage.trim()) {
       const message: ChatMessage = {
         id: chatMessages.length + 1,
-        user: 'Гость',
+        user: user.minecraft_nick || user.username,
         message: newMessage,
         time: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
       };
@@ -49,6 +65,34 @@ const Index = () => {
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages]);
+
+  useEffect(() => {
+    const token = authService.getToken();
+    const savedUser = authService.getUser();
+    if (token && savedUser) {
+      authService.verify(token).then((result) => {
+        if (result.success && result.user) {
+          setUser(result.user);
+        } else {
+          authService.logout();
+        }
+      });
+    }
+  }, []);
+
+  const handleAuthSuccess = () => {
+    const savedUser = authService.getUser();
+    setUser(savedUser);
+  };
+
+  const handleLogout = () => {
+    authService.logout();
+    setUser(null);
+    toast({
+      title: '👋 До встречи!',
+      description: 'Вы вышли из аккаунта',
+    });
+  };
 
   const donatePackages = [
     { name: 'Стартовый', price: '99₽', features: ['Приват территории', 'Набор инструментов', 'x2 к опыту'] },
@@ -89,6 +133,35 @@ const Index = () => {
             ))}
           </div>
           <div className="flex items-center gap-3">
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="glow-box hidden md:flex">
+                    <Icon name="User" size={18} className="mr-2" />
+                    {user.username}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56 bg-background/95 backdrop-blur-xl border-primary/20">
+                  <DropdownMenuItem className="flex items-center gap-2">
+                    <Icon name="User" size={16} />
+                    <div>
+                      <div className="font-bold">{user.username}</div>
+                      {user.minecraft_nick && <div className="text-xs text-muted-foreground">{user.minecraft_nick}</div>}
+                    </div>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+                    <Icon name="LogOut" size={16} className="mr-2" />
+                    Выйти
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button onClick={() => setAuthDialogOpen(true)} className="glow-box hidden md:flex">
+                <Icon name="LogIn" size={18} className="mr-2" />
+                Войти
+              </Button>
+            )}
             <Badge variant={serverStatus.online ? 'default' : 'destructive'} className="animate-pulse-glow hidden sm:flex">
               <Icon name="Circle" size={8} className="mr-1 fill-current" />
               {serverStatus.online ? 'ONLINE' : 'OFFLINE'}
@@ -384,6 +457,12 @@ const Index = () => {
           </div>
         </div>
       </footer>
+
+      <AuthDialog 
+        open={authDialogOpen} 
+        onOpenChange={setAuthDialogOpen}
+        onSuccess={handleAuthSuccess}
+      />
     </div>
   );
 };
