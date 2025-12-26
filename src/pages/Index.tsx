@@ -272,7 +272,7 @@ const Index = () => {
                   Копировать
                 </Button>
               </div>
-              <div className="text-xs text-muted-foreground mt-2 text-center">Работает на любой версии Minecraft</div>
+              <div className="text-xs text-muted-foreground mt-2 text-center">Версия: 1.20.1</div>
             </div>
           </div>
           <div className="flex gap-4 justify-center flex-wrap">
@@ -396,7 +396,7 @@ const Index = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Версия:</span>
-                  <span className="font-bold text-secondary">Любая версия ✨</span>
+                  <span className="font-bold text-secondary">1.20.1</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Онлайн:</span>
